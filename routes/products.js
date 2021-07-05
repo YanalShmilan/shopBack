@@ -20,18 +20,6 @@ router.param('productId', async (req, res, next, productId) => {
     next({ message: 'product not found', status: 404 });
   }
 });
-// router.use('/:productId', async (req, res, next) => {
-//   if (req.method === 'GET') {
-//     res.status(200).json(req.product);
-//   } else if (req.method === 'DELETE') {
-//     await req.product.destroy();
-//     res.status(204).end();
-//   } else {
-//     await req.product.update(req.body);
-//     res.status(204).end();
-//   }
-//   next();
-// });
 
 router.get('/', getProducts);
 router.get('/:productId', getProductDetails);

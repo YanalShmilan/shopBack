@@ -1,6 +1,7 @@
 const express = require('express');
-const { Product } = require('../db/models');
+const { Product, Shop } = require('../db/models');
 const upload = require('../middleware/multer');
+const passport = require('passport');
 
 const {
   getProducts,
@@ -23,7 +24,16 @@ router.param('productId', async (req, res, next, productId) => {
 
 router.get('/', getProducts);
 router.get('/:productId', getProductDetails);
-router.put('/:productId', upload.single('img'), updateProduct);
-router.delete('/:productId', deleteProduct);
+router.put(
+  '/:productId',
+  passport.authenticate('jwt', { session: false }),
+  upload.single('img'),
+  updateProduct
+);
+router.delete(
+  '/:productId',
+  passport.authenticate('jwt', { session: false }),
+  deleteProduct
+);
 
 module.exports = router;

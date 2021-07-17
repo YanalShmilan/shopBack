@@ -1,6 +1,6 @@
 // let data = require('../data');
 // const slugify = require('slugify');
-const { Product } = require('../db/models');
+const { Product, Shop } = require('../db/models');
 
 exports.getProducts = async (req, res, next) => {
   try {
@@ -17,19 +17,29 @@ exports.getProductDetails = (req, res, next) =>
 
 exports.deleteProduct = async (req, res, next) => {
   try {
-    await req.product.destroy();
-    res.status(204).end();
+    const foundedShop = await Shop.findByPk(req.product.shopId);
+    if (foundedShop.userId !== req.user.id) {
+      res.status(401).json({ message: 'Unauthorized' }).end();
+    } else {
+      await req.product.destroy();
+      res.status(204).end();
+    }
   } catch (error) {
     next(error);
   }
 };
 exports.updateProduct = async (req, res, next) => {
   try {
-    if (req.file) {
-      req.body.img = `http://${req.get('host')}/media/${req.file.filename}`;
+    const foundedShop = await Shop.findByPk(req.product.shopId);
+    if (foundedShop.userId !== req.user.id) {
+      res.status(401).json({ message: 'Unauthorized' }).end();
+    } else {
+      if (req.file) {
+        req.body.img = `http://${req.get('host')}/media/${req.file.filename}`;
+      }
+      await req.product.update(req.body);
+      res.json(req.product);
     }
-    await req.product.update(req.body);
-    res.json(req.product);
   } catch (error) {
     next(error);
   }

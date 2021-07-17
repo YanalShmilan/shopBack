@@ -7,6 +7,7 @@ exports.createShop = async (req, res, next) => {
     if (req.file) {
       req.body.img = `http://${req.get('host')}/media/${req.file.filename}`;
     }
+    req.body.userId = req.user.id;
     const newShop = await Shop.create(req.body);
 
     res.status(201).json(newShop);
@@ -55,10 +56,16 @@ exports.createProduct = async (req, res, next) => {
     if (req.file) {
       req.body.img = `http://${req.get('host')}/media/${req.file.filename}`;
     }
-    req.body.shopId = req.shop.id;
-    const newProduct = await Product.create(req.body);
+    // const foundedShop = await Shop.findByPk(123);
 
-    res.status(201).json(newProduct);
+    if (req.shop.userId !== req.user.id) {
+      res.status(401).json({ message: 'Unauthorized' });
+    } else {
+      req.body.shopId = req.shop.id;
+      const newProduct = await Product.create(req.body);
+
+      res.status(201).json(newProduct);
+    }
   } catch (error) {
     next(error);
   }
